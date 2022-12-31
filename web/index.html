@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>lastPromise</title>
+  <style>
+    .active {
+      color: #ff9032;
+    }
+    #content {
+      margin-top: 20px;
+    }
+  </style>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div class="a-wrap">
+      <a href="javascript:;" class="active">全部</a>
+      <a href="javascript:;">类型1</a>
+      <a href="javascript:;">类型2</a>
+    </div>
+    <div id="content"></div>
+  </div>
+
+  <script>
+    axios.defaults.baseURL = 'http://localhost:9090'
+
+    const getContent = function (params) {
+      return axios({
+        url: '/content',
+        params
+      }).then(res => {
+        document.querySelector('#content').innerText = res.data
+        return res
+      })
+    }
+
+    const aWrap = document.querySelector('.a-wrap')
+
+    aWrap.addEventListener('click', function (e) {
+      if(e.target.tagName === 'A') {
+        for (let i = 0; i < aWrap.children.length; i++) {
+          const el = aWrap.children[i];
+          el.classList.remove('active')
+        }
+        e.target.classList.add('active')
+        getContent({ type: e.target.innerText })
+      }
+    })
+    getContent({ type: '全部' })
+  </script>
+</body>
+</html>
