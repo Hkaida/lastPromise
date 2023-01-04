@@ -13,7 +13,6 @@
       margin-top: 20px;
     }
   </style>
-  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 </head>
 <body>
   <div id="app">
@@ -25,32 +24,64 @@
     <div id="content"></div>
   </div>
 
-  <script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="module">
     axios.defaults.baseURL = 'http://localhost:9090'
 
-    const getContent = function (params) {
+    /* 未限制
+     -------------------------------------------------------------------------------- */
+    const getContent = params => {
       return axios({
         url: '/content',
         params
-      }).then(res => {
-        document.querySelector('#content').innerText = res.data
-        return res
       })
     }
 
-    const aWrap = document.querySelector('.a-wrap')
+    /* 方案一：借助 axios 的 CancelToken
+     -------------------------------------------------------------------------------- */
+    // import { lastPromise } from "./js/cancelToken.js";
+    // const getContent = lastPromise((params, source) => {
+    //   return axios({
+    //     url: '/content',
+    //     params,
+    //     cancelToken: source.token
+    //   })
+    // })
 
-    aWrap.addEventListener('click', function (e) {
+    /* 方案二：利用 Promise.race
+     -------------------------------------------------------------------------------- */
+    // import { lastPromise } from "./js/race.js";
+    // const getContent = lastPromise(params => {
+    //   return axios({
+    //     url: '/content',
+    //     params
+    //   })
+    // })
+    
+    /* -
+     -------------------------------------------------------------------------------- */
+    const handleGetContent = params => {
+      const contentEl =  document.querySelector('#content')
+      contentEl.innerText = '加载中...'
+      return getContent(params).then(res => {
+        contentEl.innerText = res.data
+        return res
+      })
+    }
+    handleGetContent({ type: '全部' })
+
+    const aWrapEl = document.querySelector('.a-wrap')
+    aWrapEl.addEventListener('click', function (e) {
       if(e.target.tagName === 'A') {
-        for (let i = 0; i < aWrap.children.length; i++) {
-          const el = aWrap.children[i];
+        for (let i = 0; i < aWrapEl.children.length; i++) {
+          const el = aWrapEl.children[i];
           el.classList.remove('active')
         }
         e.target.classList.add('active')
-        getContent({ type: e.target.innerText })
+        handleGetContent({ type: e.target.innerText })
       }
     })
-    getContent({ type: '全部' })
+    
   </script>
 </body>
 </html>
